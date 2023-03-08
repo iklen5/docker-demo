@@ -1,12 +1,13 @@
 @Library('propsFileReader') _
 
+def props = loadProperties(${env.WORKSPACE} + "/misc/config.properties")
+
 pipeline {
     agent any
     tools { nodejs "nodejs"}
     environment {
         commit_id = ''
-        def props = loadProperties(${env.WORKSPACE} + "/misc/config.properties")
-        MY_ENV_VAR = props.REGISTRY
+        REGISTRY = props.REGISTRY
     }
     stages {
         stage('Preparation') {
@@ -29,7 +30,7 @@ pipeline {
         }
         stage('docker build/push') {
             environment {
-                registry = 'https://index.docker.io/v1/'
+                registry = env.REGISTRY
                 registryCredential = 'dockerhub'
             }
             steps {
