@@ -5,10 +5,7 @@ def call(String filePath) {
   fileExistsOrDie(filePath)
   props.load(new FileInputStream(filePath))
 
-  // Set each property as an environment variable
-  props.each { key, value ->
-    env."${key}" = "${value}"
-  }
+  return props
 }
 
 def fileExistsOrDie(String filePath) {
