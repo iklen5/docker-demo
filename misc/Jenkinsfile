@@ -1,6 +1,6 @@
 @Library('propsFileReader') _
 
-def props = readPropertiesFile("${env.WORKSPACE}/misc/config.properties")
+def props = readPropertiesFile("${WORKSPACE}/misc/config.properties")
 
 pipeline {
     agent any
