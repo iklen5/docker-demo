@@ -7,7 +7,7 @@ pipeline {
     tools { nodejs "nodejs"}
     environment {
         commit_id = ''
-        REGISTRY = props.REGISTRY
+        REGISTRY = props['REGISTRY']
     }
     stages {
         stage('Preparation') {
@@ -30,7 +30,7 @@ pipeline {
         }
         stage('docker build/push') {
             environment {
-                registry = env.REGISTRY
+                REGISTRY = props['REGISTRY']
                 registryCredential = 'dockerhub'
             }
             steps {
