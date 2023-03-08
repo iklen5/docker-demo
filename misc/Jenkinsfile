@@ -5,7 +5,8 @@ pipeline {
     tools { nodejs "nodejs"}
     environment {
         commit_id = ''
-        loadProperties(${env.WORKSPACE} + "/misc/config.properties")
+        def props = loadProperties(${env.WORKSPACE} + "/misc/config.properties")
+        MY_ENV_VAR = props.REGISTRY
     }
     stages {
         stage('Preparation') {
