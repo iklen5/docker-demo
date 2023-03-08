@@ -1,15 +1,11 @@
 @Library('propsFileReader') _
 
-def props = readPropertiesFile('path/to/your/properties/file.properties')
-
 pipeline {
     agent any
     tools { nodejs "nodejs"}
     environment {
         commit_id = ''
-        for (prop in props) {
-            "${prop.key}" : "${prop.value}"
-        }
+        loadProperties(${env.WORKSPACE} + "/misc/config.properties")
     }
     stages {
         stage('Preparation') {
