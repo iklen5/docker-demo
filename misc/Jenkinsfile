@@ -7,15 +7,19 @@ pipeline {
     tools { nodejs "nodejs"}
     environment {
         commit_id = ''
-        REGISTRY = props['REGISTRY']
     }
     stages {
         stage('Preparation') {
             steps {
-                checkout scm
-                script {
-                    sh 'printenv'
-                    commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                withEnv([
+                  "REGISTRY=${props.REGISTRY}",
+                  "REGISTRY_CREDENTIAL=${props.REGISTRY_CREDENTIAL}"
+                ]) {
+                    checkout scm
+                    script {
+                        sh 'printenv'
+                        commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    }
                 }
             }
         }
@@ -29,13 +33,9 @@ pipeline {
             }
         }
         stage('docker build/push') {
-            environment {
-                REGISTRY = props['REGISTRY']
-                registryCredential = 'dockerhub'
-            }
             steps {
                 script {
-                    docker.withRegistry(registry, registryCredential) {
+                    docker.withRegistry(${REGISTRY}, ${REGISTRY_CREDENTIAL}) {
                         def app = docker.build("kubeiklen/docker-nodejs-demo:${commit_id}", '.')
                         app.push()
                     }
