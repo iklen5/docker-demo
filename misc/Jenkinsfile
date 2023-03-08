@@ -1,14 +1,22 @@
+@Library('propsFileReader') _
+
+def props = readPropertiesFile('path/to/your/properties/file.properties')
+
 pipeline {
     agent any
     tools { nodejs "nodejs"}
     environment {
         commit_id = ''
+        for (prop in props) {
+            "${prop.key}" : "${prop.value}"
+        }
     }
     stages {
         stage('Preparation') {
             steps {
                 checkout scm
                 script {
+                    sh 'printenv'
                     commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                 }
             }

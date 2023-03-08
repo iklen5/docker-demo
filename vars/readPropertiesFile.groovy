@@ -1,6 +1,5 @@
-def call() {
+def call(String filePath) {
   def props = new Properties()
-  def propsFile = new File(filePath)
-  props.load(propsFile.newDataInputStream())
+  props.load(new FileInputStream(filePath))
   return props
 }
