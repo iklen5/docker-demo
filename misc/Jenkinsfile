@@ -35,7 +35,7 @@ pipeline {
         stage('docker build/push') {
             steps {
                 script {
-                    docker.withRegistry(${REGISTRY}, ${REGISTRY_CREDENTIAL}) {
+                    docker.withRegistry(env.REGISTRY, env.REGISTRY_CREDENTIAL) {
                         def app = docker.build("kubeiklen/docker-nodejs-demo:${commit_id}", '.')
                         app.push()
                     }
