@@ -1,28 +1,18 @@
 @Library('propsFileReader') _
 
-def props = loadProperties(env.WORKSPACE + "/misc/config.properties")
+def props = readProperties file: "${env.WORKSPACE}/misc/config.properties"
 
 pipeline {
     agent any
-    tools { nodejs "nodejs"}
+    tools {
+        nodejs "nodejs"
+    }
     environment {
-        commit_id = ''
+        REGISTRY = props['REGISTRY']
+        REGISTRY_CREDENTIAL = props['REGISTRY_CREDENTIAL']
+        commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
     stages {
-        stage('Preparation') {
-            steps {
-                withEnv([
-                  "REGISTRY=${props['REGISTRY']}",
-                  "REGISTRY_CREDENTIAL=${props['REGISTRY_CREDENTIAL']}"
-                ]) {
-                    checkout scm
-                    script {
-                        sh 'printenv'
-                        commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    }
-                }
-            }
-        }
         stage('test') {
             agent {
                 label 'nodejs'
@@ -36,7 +26,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry(env.REGISTRY, env.REGISTRY_CREDENTIAL) {
-                        def app = docker.build("kubeiklen/docker-nodejs-demo:${commit_id}", '.')
+                        def app = docker.build("kubeiklen/docker-nodejs-demo:${env.commit_id}", '.')
                         app.push()
                     }
                 }
