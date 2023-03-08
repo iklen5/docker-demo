@@ -8,8 +8,8 @@ pipeline {
         nodejs "nodejs"
     }
     environment {
-        REGISTRY = props['REGISTRY']
-        REGISTRY_CREDENTIAL = props['REGISTRY_CREDENTIAL']
+        REGISTRY = "${props['REGISTRY']}"
+        REGISTRY_CREDENTIAL = "${props['REGISTRY_CREDENTIAL']}"
         commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
     stages {
