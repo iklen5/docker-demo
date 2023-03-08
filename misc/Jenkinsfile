@@ -1,16 +1,11 @@
 @Library('propsFileReader') _
 
-def props = readPropertiesFile("${WORKSPACE}/misc/config.properties")
+def props = [:]
 
 pipeline {
     agent any
     tools {
         nodejs "nodejs"
-    }
-    environment {
-        REGISTRY = "${props['REGISTRY']}"
-        REGISTRY_CREDENTIAL = "${props['REGISTRY_CREDENTIAL']}"
-        commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
     stages {
         stage('test') {
@@ -20,9 +15,17 @@ pipeline {
             steps {
                 sh 'npm install --only=dev'
                 sh 'npm test'
+                script {
+                     props = readPropertiesFile("${WORKSPACE}/misc/config.properties")
+                }
             }
         }
         stage('docker build/push') {
+            environment {
+                REGISTRY = "${props['REGISTRY']}"
+                REGISTRY_CREDENTIAL = "${props['REGISTRY_CREDENTIAL']}"
+                commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+            }
             steps {
                 script {
                     docker.withRegistry(env.REGISTRY, env.REGISTRY_CREDENTIAL) {
