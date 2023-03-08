@@ -12,8 +12,8 @@ pipeline {
         stage('Preparation') {
             steps {
                 withEnv([
-                  "REGISTRY=${props.REGISTRY}",
-                  "REGISTRY_CREDENTIAL=${props.REGISTRY_CREDENTIAL}"
+                  "REGISTRY=${props['REGISTRY']}",
+                  "REGISTRY_CREDENTIAL=${props['REGISTRY_CREDENTIAL']}"
                 ]) {
                     checkout scm
                     script {
