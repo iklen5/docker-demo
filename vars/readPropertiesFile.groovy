@@ -1,20 +1,19 @@
-// vars/readPropertiesFile.groovy
+package org.example
 
-def call(String filePath) {
+def loadPropertiesFile(GString filePath) {
   def props = new Properties()
-  fileExistsOrDie(filePath)
-  props.load(new FileInputStream(filePath))
-
+  def file = new File(filePath)
+  props.load(file.newDataInputStream())
   return props
 }
 
-def fileExistsOrDie(String filePath) {
-  if (!fileExists(filePath)) {
-    throw new FileNotFoundException("File not found: ${filePath}")
-  }
-}
+def myLibrary() {
+  def props = loadPropertiesFile("${WORKSPACE}/misc/config.properties")
 
-def fileExists(String filePath) {
-  def file = new File(filePath)
-  return file.exists()
+  props.each { prop ->
+    String key = prop.key
+    String value = prop.value
+
+    env."${key}" = value
+  }
 }
