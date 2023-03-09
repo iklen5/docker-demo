@@ -26,9 +26,10 @@ pipeline {
         stage('docker build/push') {
             environment {
                 commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                TIMEOUT_UNIT = "MINUTES"
             }
             options {
-                timeout(time: ENV_VARS['HOURS_TO_TIMEOUT'], unit: 'HOURS')
+                timeout(time: 1, unit: "${env.TIMEOUT_UNIT}")
             }
             steps {
                 script {
