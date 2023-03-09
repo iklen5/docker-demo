@@ -5,6 +5,9 @@ pipeline {
     tools {
         nodejs "nodejs"
     }
+    environment {
+        ENV_VARS = ''
+    }
     stages {
         stage('test') {
             agent {
@@ -14,7 +17,8 @@ pipeline {
                 sh 'npm install --only=dev'
                 sh 'npm test'
                 script {
-                     readPropertiesFile("${WORKSPACE}/misc/config.properties")
+                     readPropertiesFileAndSetEnvVars("${WORKSPACE}/misc/config.properties")
+                     ENV_VARS = readPropertiesFile("${WORKSPACE}/misc/config.properties")
                 }
                 sh 'printenv'
             }
@@ -24,11 +28,11 @@ pipeline {
                 commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
             }
             options {
-                timeout(time: env.HOURS_TO_TIMEOUT, unit: 'HOURS')
+                timeout(time: ENV_VARS['HOURS_TO_TIMEOUT'], unit: 'HOURS')
             }
             steps {
                 script {
-                    docker.withRegistry(env.REGISTRY, env.REGISTRY_CREDENTIAL) {
+                    docker.withRegistry(ENV_VARS['REGISTRY'], ENV_VARS['REGISTRY_CREDENTIAL']) {
                         def app = docker.build("kubeiklen/docker-nodejs-demo:${env.commit_id}", '.')
                         app.push()
                     }
