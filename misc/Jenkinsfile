@@ -23,6 +23,9 @@ pipeline {
             environment {
                 commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
             }
+            options {
+                timeout(time: env.HOURS_TO_TIMEOUT, unit: 'HOURS')
+            }
             steps {
                 script {
                     docker.withRegistry(env.REGISTRY, env.REGISTRY_CREDENTIAL) {
