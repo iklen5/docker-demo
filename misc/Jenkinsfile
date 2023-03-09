@@ -16,8 +16,9 @@ pipeline {
                 sh 'npm install --only=dev'
                 sh 'npm test'
                 script {
-                     org.example.MyLibrary.myLibrary()
+                     readPropertiesFile("${WORKSPACE}/misc/config.properties")
                 }
+                sh 'printenv'
             }
         }
         stage('docker build/push') {
