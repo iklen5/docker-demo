@@ -5,39 +5,24 @@ pipeline {
     tools {
         nodejs "nodejs"
     }
-    environment {
-        ENV_VARS = ''
-    }
     stages {
         stage('test') {
             agent {
                 label 'nodejs'
             }
             steps {
-                sh 'npm install --only=dev'
-                sh 'npm test'
                 script {
-                     readPropertiesFileAndSetEnvVars("${WORKSPACE}/misc/config.properties")
-                     ENV_VARS = readPropertiesFile("${WORKSPACE}/misc/config.properties")
+                    readPropertiesFileAndSetEnvVars("${WORKSPACE}/misc/config.properties")
                 }
-                sh 'printenv'
             }
         }
         stage('docker build/push') {
-            environment {
-                commit_id = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                TIMEOUT_UNIT = "MINUTES"
-            }
             options {
-                timeout(time: 1, unit: "${env.TIMEOUT_UNIT}")
+                // Timeout counter starts AFTER agent is allocated
+                timeout(time: 1, unit: env.UNIT_OF_TIMEOUT)
             }
             steps {
-                script {
-                    docker.withRegistry(ENV_VARS['REGISTRY'], ENV_VARS['REGISTRY_CREDENTIAL']) {
-                        def app = docker.build("kubeiklen/docker-nodejs-demo:${env.commit_id}", '.')
-                        app.push()
-                    }
-                }
+                sh 'printenv'
             }
         }
     }
